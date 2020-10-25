@@ -11,6 +11,7 @@ import {
   generateAccessToken,
   generateRefreshToken
 } from '../../../utils/config/jwtToken'
+import { isValidRedirectURIValidation } from '../utils/isValidRedirectURIValidation'
 
 const provider = 'discord'
 
@@ -18,7 +19,12 @@ const discordRouter = Router()
 
 discordRouter.get(
   '/signin',
-  [query('redirectURI').notEmpty()],
+  [
+    query('redirectURI')
+      .notEmpty()
+      .trim()
+      .custom(isValidRedirectURIValidation)
+  ],
   validateRequest,
   (req: Request, res: Response) => {
     const { redirectURI } = req.query as { redirectURI: string }
@@ -30,7 +36,13 @@ discordRouter.get(
 
 discordRouter.get(
   '/callback',
-  [query('code').notEmpty(), query('redirectURI').notEmpty()],
+  [
+    query('code').notEmpty(),
+    query('redirectURI')
+      .notEmpty()
+      .trim()
+      .custom(isValidRedirectURIValidation)
+  ],
   validateRequest,
   async (req: Request, res: Response) => {
     const { code, redirectURI } = req.query as {
